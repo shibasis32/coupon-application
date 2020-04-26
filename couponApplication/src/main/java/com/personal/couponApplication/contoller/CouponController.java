@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.personal.couponApplication.model.request.UserDetailRequest;
 import com.personal.couponApplication.model.response.CouponDetails;
+import com.personal.couponApplication.model.response.UserDetailsResponse;
 import com.personal.couponApplication.service.CouponService;
 
 /**
@@ -34,7 +35,7 @@ public class CouponController {
 	 * @return
 	 */
 	@CrossOrigin(origins = "http://localhost:4200")
-	@PostMapping("/getCoupon")
+	@PostMapping(path = "/getCoupon", consumes = "application/json", produces = "application/json")
 	public ResponseEntity<CouponDetails> getCoupon(@RequestBody UserDetailRequest request) {
 		CouponDetails response = couponService.getCoupon(request);
 		return new ResponseEntity<CouponDetails>(response, HttpStatus.OK);
@@ -45,9 +46,9 @@ public class CouponController {
 	 * 
 	 */
 	@CrossOrigin(origins = "http://localhost:4200")
-	@PostMapping("/registerUser")
-	public ResponseEntity<String> registerUser(@RequestBody UserDetailRequest request) {
-		String message = couponService.registerUser(request);
-		return new ResponseEntity<String>(message, HttpStatus.OK);
+	@PostMapping(path = "/registerUser", consumes = "application/json", produces = "application/json")
+	public ResponseEntity<UserDetailsResponse> registerUser(@RequestBody UserDetailRequest request) {
+		UserDetailsResponse response = couponService.registerUser(request);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

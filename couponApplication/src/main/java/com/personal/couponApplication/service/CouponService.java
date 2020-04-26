@@ -3,20 +3,21 @@
  */
 package com.personal.couponApplication.service;
 
-import java.util.Date;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.personal.couponApplication.entity.Coupon;
 import com.personal.couponApplication.entity.Customer;
 import com.personal.couponApplication.model.request.UserDetailRequest;
 import com.personal.couponApplication.model.response.CouponDetails;
+import com.personal.couponApplication.model.response.UserDetailsResponse;
+import com.personal.couponApplication.modeler.CustomerModeler;
 import com.personal.couponApplication.respository.CouponRespository;
 import com.personal.couponApplication.respository.CustomerRepository;
 
@@ -31,9 +32,12 @@ public class CouponService {
 	@Autowired
 	@Qualifier("couponRepo")
 	private CouponRespository couponRepository;
-	
+
 	@Autowired
 	private CustomerRepository customerRepo;
+
+	@Autowired
+	private CustomerModeler customerModeler;
 
 	/**
 	 * This method will fetch the coupon Details from the DB.
@@ -43,38 +47,59 @@ public class CouponService {
 	 */
 	public CouponDetails getCoupon(UserDetailRequest request) {
 		CouponDetails details = new CouponDetails();
-	
-		Coupon coupon = couponRepository.findByMobile(request.getPhoneNumber());
-		
-		details.setCouponNumber(coupon.getCouponNumber());
-		details.setMessage("Coupon Code successful");
-		details.setCreatedDate(coupon.getCreatedDate());
-		details.setExpiryDate(coupon.getExpiryDate());
-		details.setMobile(coupon.getMobile());
-		details.setModifiedBy(coupon.getModifiedBy());
-		details.setModifiedDate(coupon.getModifiedDate());
-		details.setStatus(coupon.getStatus());
+
+		Optional<Coupon> couponResult = couponRepository.findByMobile(request.getPhoneNumber());
+		if (couponResult.isPresent()) {
+			Coupon coupon = couponResult.get();
+			details.setCouponNumber(coupon.getCouponNumber());
+			details.setMessage("Coupon Code successful");
+			details.setCreatedDate(coupon.getCreatedDate().toLocaleString());
+			details.setExpiryDate(coupon.getExpiryDate().toLocaleString());
+			details.setMobile(coupon.getMobile());
+			details.setModifiedBy(coupon.getModifiedBy());
+			details.setModifiedDate(coupon.getModifiedDate());
+			details.setStatus(coupon.getStatus());
+		}
 		return details;
 	}
 
-	public String registerUser(UserDetailRequest request) {
-		String message = null;
-		Customer customer = new Customer();
-		customer.setArea(request.getArea());
-		customer.setCity(request.getCity());
-		customer.setEmailId(request.getEmailId());
-		customer.setMobile(request.getPhoneNumber());
-		customer.setUserName(request.getUserName());
-		customer.setCreatedDate(new Date());
-		customer.setModifiedDate(new Date());
-		customer.setModifiedBy(request.getUserName());
-		Customer custom = customerRepo.save(customer);
-		if(custom != null) {
-			message = "Successfully registered";
-		} else {
-			message = "Error while registering the user in DB";
+	public UserDetailsResponse registerUser(UserDetailRequest request) {
+		UserDetailsResponse response = new UserDetailsResponse();
+		Customer modeledCustomer = customerModeler.modelCustomer(request);
+
+		try {
+			Boolean isIdExists = customerRepo.existsById(modeledCustomer.getMobile());
+			if (isIdExists == false) {
+				try {
+					customerRepo.save(modeledCustomer);
+					response.setMessage("Successfully registered");
+					response.setStatus("200");
+					response.setErrorMessage("No Errors");
+					Coupon modeledCoupon = customerModeler.modelCoupon(modeledCustomer);
+					couponRepository.save(modeledCoupon);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					response.setMessage("Error while registering the user");
+					response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.toString());
+					response.setErrorMessage(e.getMessage());
+				}
+				
+			} else {
+				response.setMessage("User is already registered");
+				response.setStatus("200");
+				response.setErrorMessage("No Errors");
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			response.setMessage("Error while registering the user");
+			response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.toString());
+			response.setErrorMessage(e.getMessage());
 		}
-		return message;
+		/*
+		 * if (custom != null) { message = "Successfully registered"; } else { message =
+		 * "Error while registering the user in DB"; }
+		 */
+		return response;
 	}
 
 }

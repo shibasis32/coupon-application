@@ -1,6 +1,7 @@
 package com.personal.couponApplication.model.response;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -17,13 +18,13 @@ public class CouponDetails {
 
 	private String mobile;
 
-	private String couponNumber;
+	private UUID couponNumber;
 
-	private Date expiryDate;
+	private String expiryDate;
 
 	private String status;
 
-	private Date createdDate;
+	private String createdDate;
 
 	private Date modifiedDate;
 
@@ -62,22 +63,22 @@ public class CouponDetails {
 	/**
 	 * @return the couponNumber
 	 */
-	public String getCouponNumber() {
+	public UUID getCouponNumber() {
 		return couponNumber;
 	}
 
 	/**
-	 * @param couponNumber
+	 * @param uuid
 	 *            the couponNumber to set
 	 */
-	public void setCouponNumber(String couponNumber) {
-		this.couponNumber = couponNumber;
+	public void setCouponNumber(UUID uuid) {
+		this.couponNumber = uuid;
 	}
 
 	/**
 	 * @return the expiryDate
 	 */
-	public Date getExpiryDate() {
+	public String getExpiryDate() {
 		return expiryDate;
 	}
 
@@ -85,7 +86,7 @@ public class CouponDetails {
 	 * @param expiryDate
 	 *            the expiryDate to set
 	 */
-	public void setExpiryDate(Date expiryDate) {
+	public void setExpiryDate(String expiryDate) {
 		this.expiryDate = expiryDate;
 	}
 
@@ -107,7 +108,7 @@ public class CouponDetails {
 	/**
 	 * @return the createdDate
 	 */
-	public Date getCreatedDate() {
+	public String getCreatedDate() {
 		return createdDate;
 	}
 
@@ -115,7 +116,7 @@ public class CouponDetails {
 	 * @param createdDate
 	 *            the createdDate to set
 	 */
-	public void setCreatedDate(Date createdDate) {
+	public void setCreatedDate(String createdDate) {
 		this.createdDate = createdDate;
 	}
 

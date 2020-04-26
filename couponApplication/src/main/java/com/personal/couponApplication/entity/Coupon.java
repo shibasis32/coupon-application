@@ -4,10 +4,12 @@
 package com.personal.couponApplication.entity;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 /**
@@ -23,7 +25,12 @@ public class Coupon {
 	private String mobile;
 
 	@Column(name = "COUPON_NO")
-	private String couponNumber;
+	/*@GeneratedValue(generator = "UUID")
+	@GenericGenerator(
+		name = "UUID",
+		strategy = "org.hibernate.id.UUIDGenerator"
+	)*/
+	private UUID couponNumber;
 
 	@Column(name = "EXP_DATE")
 	private Date expiryDate;
@@ -58,7 +65,7 @@ public class Coupon {
 	/**
 	 * @return the couponNumber
 	 */
-	public String getCouponNumber() {
+	public UUID getCouponNumber() {
 		return couponNumber;
 	}
 
@@ -66,8 +73,15 @@ public class Coupon {
 	 * @param couponNumber
 	 *            the couponNumber to set
 	 */
-	public void setCouponNumber(String couponNumber) {
+	public void setCouponNumber(UUID couponNumber) {
 		this.couponNumber = couponNumber;
+	}
+	
+	@PrePersist
+	protected void onCreate() {
+	    // set the uid 
+		setCouponNumber(java.util.UUID.randomUUID());
+
 	}
 
 	/**
